@@ -15,7 +15,6 @@
 #include <QMessageBox>
 #include <QTextStream>
 #include <QKeyEvent>
-#include <QRegExp>
 
 TextEdit::TextEdit() : QTextEdit() {}
 TextEdit::TextEdit(const QString &text) : QTextEdit(text) {}
