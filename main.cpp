@@ -26,7 +26,7 @@ void TextEdit::keyPressEvent(QKeyEvent *event) {
 
 MainWindow::MainWindow() {
     resize(640, 230);
-    this->setWindowTitle("");
+    this->setWindowTitle(" ");
 
     QMenu *menu_file = new QMenu("___");
     menu_file->addAction("Открыть файл", this, SLOT(load_text()), Qt::CTRL + Qt:: Key_O);
