@@ -1,5 +1,5 @@
 #include "main.h"
-#include <iostream>
+//#include <iostream>
 
 #include <QApplication>
 #include <QPushButton>
@@ -13,7 +13,7 @@
 #include <QDataStream>
 #include <QIODevice>
 #include <QMessageBox>
-#include <QTextStream>
+//#include <QTextStream>
 #include <QKeyEvent>
 
 TextEdit::TextEdit() : QTextEdit() {}
@@ -26,6 +26,7 @@ void TextEdit::keyPressEvent(QKeyEvent *event) {
 
 MainWindow::MainWindow() {
     resize(640, 230);
+    this->setWindowTitle("");
 
     QMenu *menu_file = new QMenu("___");
     menu_file->addAction("Открыть файл", this, SLOT(load_text()), Qt::CTRL + Qt:: Key_O);
@@ -36,7 +37,7 @@ MainWindow::MainWindow() {
     QMenu *menu_option = new QMenu("___");
     QAction *mod_tosha = new QAction("Режим \"ТОША\"", this);
     mod_tosha->setCheckable(true);
-    mod_tosha->setChecked(false);
+    mod_tosha->setChecked(true);
     connect(mod_tosha, SIGNAL(toggled(bool)), this, SLOT(set_mod_tosha(bool)));
     menu_option->addAction(mod_tosha);
     menuBar()->addMenu(menu_option);
@@ -46,6 +47,8 @@ MainWindow::MainWindow() {
     setCentralWidget(text_block);
     connect(text_block, SIGNAL(keyPress(int, int)),
             this, SLOT(check_input_key(int, int)));
+
+    set_mod_tosha(1);
 }
 
 void MainWindow::load_text() {
@@ -71,6 +74,8 @@ void MainWindow::load_text() {
     while(!file.atEnd())
     {
         text.append(file.readLine());
+        text.last() = text.last().remove(QChar('\n'), Qt::CaseInsensitive);
+        text.last() = text.last().remove(QChar('\r'), Qt::CaseInsensitive);
     }
 
     file.close();
@@ -99,7 +104,7 @@ void MainWindow::check_input_key(int key, int is_shift) {
     QChar c = QChar(key);
 
     // Провиряем на функциональные клавиши
-    if (key > 10000)
+   if (key > 10000)
         return;
 
     // Проверяем на нажатие shift, если не нажат
@@ -122,13 +127,13 @@ void MainWindow::check_input_key(int key, int is_shift) {
             break;
 
         case 1:
+            if ((position >= (*line).length()) && (c == ' '))
+                break;
+
             if (c == (*line)[position]) {
                 // Если введеный символ правельный, то перемещаем курсор дальше по тексту
                 position++;
             } else {
-                if ((position == (*line).length()-1) && (c == ' '))
-                    break;
-
                 position = 0;
                 QApplication::beep();
             }
@@ -141,7 +146,7 @@ void MainWindow::check_input_key(int key, int is_shift) {
     }
 
     // Проверяем на окончание предложения
-    if((position == (*line).length()-1) && (c == ' '))
+    if((position == (*line).length()) && (c == ' '))
         // Переходим к следующему предложению
         load_next_line();
 }
@@ -157,6 +162,8 @@ void MainWindow::load_next_line() {
         reset_text();
     } else {
         // Если - нет
+        // Переводим курсор в начало предложения
+        position = 0;
         // Выводим следующее предложение
         text_block->setText(*line);
     }
